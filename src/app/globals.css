@@ -1,26 +1,160 @@
+/* Hallmark · genre: editorial (luxury) · macrostructure: Split Studio + Catalogue · theme: custom "Biscayne light"
+ * paper oklch(97.5% 0.008 85) · accent oklch(52% 0.085 200) Biscayne teal · Cormorant Garamond + Instrument Sans
+ * axes: light / high-contrast-serif / cool · nav: N10 scroll-morph · footer: Ft1 mast-headed
+ */
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: oklch(97.5% 0.008 85);
+  --color-paper-2: oklch(94% 0.014 85);
+  --color-rule: oklch(86% 0.014 85);
+  --color-muted: oklch(47% 0.018 240);
+  --color-ink: oklch(23% 0.03 245);
+  --color-accent: oklch(52% 0.085 200);
+  --color-on-photo: oklch(98% 0.006 85);
+  --color-scrim: oklch(16% 0.025 245);
+  --color-error: oklch(52% 0.17 25);
+
+  --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  overflow-x: clip;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* hero: slow Ken Burns settle on load */
+@keyframes settle {
+  from {
+    transform: scale(1.14);
+  }
+}
+.kenburns {
+  animation: settle 14s var(--ease-out) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+.rise {
+  animation: rise 1100ms var(--ease-out) both;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+.fade {
+  animation: fade 500ms var(--ease-out) both;
+}
+
+/* header: solid by default; where scroll timelines exist it starts clear over the hero and solidifies */
+.hdr {
+  background: color-mix(in oklch, var(--color-paper) 88%, transparent);
+  color: var(--color-ink);
+  border-bottom: 1px solid var(--color-rule);
+  backdrop-filter: blur(14px);
+}
+
+@keyframes solidify {
+  from {
+    background: transparent;
+    color: var(--color-on-photo);
+    border-bottom-color: transparent;
+    backdrop-filter: blur(0);
+  }
+}
+@keyframes unveil {
+  from {
+    clip-path: inset(14% 10% 14% 10%);
+    transform: scale(1.06);
+  }
+}
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(44px);
+  }
+}
+@keyframes drift {
+  from {
+    transform: translateY(-6%) scale(1.12);
+  }
+  to {
+    transform: translateY(6%) scale(1.12);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hdr {
+      animation: solidify linear both;
+      animation-timeline: scroll();
+      animation-range: 0 160px;
+    }
+    .unveil {
+      animation: unveil linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+    .drift {
+      animation: drift linear both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .kenburns {
+    animation: none;
+  }
+  .rise,
+  .fade {
+    animation: fade 150ms linear both;
+  }
+}
+
+/* neighbourhood rail: native scroll-snap, no carousel library */
+.rail {
+  scrollbar-width: none;
+}
+.rail::-webkit-scrollbar {
+  display: none;
 }
